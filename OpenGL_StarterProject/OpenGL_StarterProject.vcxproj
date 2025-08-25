@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Kiran.Gaurdian\Desktop\OpenGL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Kiran.Gaurdian\Desktop\OpenGL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Kiran.Gaurdian\Desktop\Assignments\3D and Shader Programming\OpenGL_StarterProject\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Kiran.Gaurdian\Desktop\Assignments\3D and Shader Programming\OpenGL_StarterProject\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

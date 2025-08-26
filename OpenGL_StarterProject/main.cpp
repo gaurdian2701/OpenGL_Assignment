@@ -1,10 +1,9 @@
 #pragma once
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
+#include "FileHandler.h"
+#include "VertexShader.h"
+#include "FragmentShader.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -14,7 +13,6 @@ const std::string fragmentShaderFilePath = "shaders/triangle.frag";
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
-bool OpenShaderFiles(std::string& vertexShaderSource, std::string& fragmentShaderSource);
 
 int main()
 {
@@ -41,6 +39,8 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	FileHandler fileHandler = FileHandler();
 
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0f, //bottom left
@@ -72,7 +72,8 @@ int main()
 	std::string vertexShaderString = "";
 	std::string fragmentShaderString = "";
 
-	if (!OpenShaderFiles(vertexShaderString, fragmentShaderString))
+	if (!fileHandler.OpenShaderFile(vertexShaderString, vertexShaderFilePath) 
+		|| !fileHandler.OpenShaderFile(fragmentShaderString, fragmentShaderFilePath))
 	{
 		glfwTerminate();
 		return -1;
@@ -81,20 +82,13 @@ int main()
 	const char* vertexShaderSource = vertexShaderString.c_str();
 	const char* fragmentShaderSource = fragmentShaderString.c_str();
 
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-	glCompileShader(vertexShader);
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-	glCompileShader(fragmentShader);
+	Shader* vertexShader = new VertexShader(vertexShaderSource);
+	Shader* fragmentShader = new FragmentShader(fragmentShaderSource);
 
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+	glAttachShader(shaderProgram, vertexShader->GetShaderID());
+	glAttachShader(shaderProgram, fragmentShader->GetShaderID());
 	glLinkProgram(shaderProgram);
 
 
@@ -107,6 +101,9 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	delete vertexShader;
+	delete fragmentShader;
 
 	glfwTerminate();
 	return 0;
@@ -121,34 +118,4 @@ void ProcessInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-}
-
-bool OpenShaderFiles(std::string& vertexShaderString, std::string& fragmentShaderString)
-{
-	std::ifstream ShaderFileStream;
-
-	ShaderFileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	std::stringstream vertexShaderStringStream, fragmentShaderStringStream;
-
-	try
-	{
-		ShaderFileStream.open(vertexShaderFilePath);
-		vertexShaderStringStream << ShaderFileStream.rdbuf();
-		ShaderFileStream.close();
-
-		ShaderFileStream.open(fragmentShaderFilePath);
-		fragmentShaderStringStream << ShaderFileStream.rdbuf();
-		ShaderFileStream.close();
-	}
-	catch (std::ifstream::failure e)
-	{
-		std::cout << "FILE READING ERROR: " << e.what() << std::endl;
-		return false;
-	}
-
-	vertexShaderString = vertexShaderStringStream.str();
-	fragmentShaderString = fragmentShaderStringStream.str();	
-
-	return true;
 }

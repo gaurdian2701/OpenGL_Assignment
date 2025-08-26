@@ -5,6 +5,9 @@
 #include "VertexShader.h"
 #include "FragmentShader.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
@@ -43,31 +46,36 @@ int main()
 	FileHandler fileHandler = FileHandler();
 
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, //bottom left
-		-0.5f, 0.5f, 0.0f, //top left
-		0.5f, 0.5f, 0.0f, //top right
-		0.5f, -0.5f, 0.0f //bottom right
+		//Positions         //Colors        //Texture Coords
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Bottom Left
+		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, //Top Left
+		0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top Right
+		0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f // Bottom Right
 	};
 
-	int indices[] = {
-		0, 1, 2, //left triangle
-		0, 2, 3 //right triangle
+	unsigned int indices[] = {
+		0, 1, 2,
+		0, 2, 3
 	};
 
 	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
 
 	std::string vertexShaderString = "";
 	std::string fragmentShaderString = "";
@@ -91,10 +99,22 @@ int main()
 	glAttachShader(shaderProgram, fragmentShader->GetShaderID());
 	glLinkProgram(shaderProgram);
 
+	unsigned int texture;
+
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	int width, height, numberOfChannels;
+	unsigned char* imageData = stbi_load("textures/container.jpg", &width, &height, &numberOfChannels, 0);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glUseProgram(shaderProgram);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		ProcessInput(window);

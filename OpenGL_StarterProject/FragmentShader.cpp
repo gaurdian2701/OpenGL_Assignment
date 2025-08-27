@@ -15,5 +15,5 @@ void FragmentShader::InitShader(const char* shaderSource)
 {
 	m_shaderID = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(m_shaderID, 1, &shaderSource, nullptr);
-	glCompileShader(m_shaderID);
+	TryShaderCompilation();
 }

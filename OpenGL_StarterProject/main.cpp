@@ -1,15 +1,18 @@
 #pragma once
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "FileHandler.h"
 #include "VertexShader.h"
 #include "FragmentShader.h"
+#include "Texture.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 800;
 
 const std::string vertexShaderFilePath = "shaders/triangle.vert";
 const std::string fragmentShaderFilePath = "shaders/triangle.frag";
@@ -93,31 +96,61 @@ int main()
 	Shader* vertexShader = new VertexShader(vertexShaderSource);
 	Shader* fragmentShader = new FragmentShader(fragmentShaderSource);
 
+	if(vertexShader->IsCompiled() == false || fragmentShader->IsCompiled() == false)
+	{
+		glfwTerminate();
+		return -1;
+	}
+
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader->GetShaderID());
 	glAttachShader(shaderProgram, fragmentShader->GetShaderID());
 	glLinkProgram(shaderProgram);
 
-	unsigned int texture;
 
+	Texture skibidiTexture = Texture("textures/skibidi.jpg", GL_LINEAR, GL_LINEAR, GL_RGB, GL_RGB, 0);
+	Texture awesomefaceTexture = Texture("textures/awesomeface.png", GL_LINEAR, GL_LINEAR, GL_RGB, GL_RGBA, 1);
 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glUseProgram(shaderProgram);
+	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+	glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
 
-	int width, height, numberOfChannels;
-	unsigned char* imageData = stbi_load("textures/container.jpg", &width, &height, &numberOfChannels, 0);
+	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
+	modelTransformationMatrix = glm::rotate(modelTransformationMatrix, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glm::mat4 viewTransformationMatrix = glm::mat4(1.0f);	
+	viewTransformationMatrix = glm::translate(viewTransformationMatrix, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	glm::mat4 projectionTransformationMatrix = glm::mat4(1.0f);
+	projectionTransformationMatrix = glm::perspective(glm::radians(45.0f),
+		static_cast<float>(SCREEN_WIDTH)/static_cast<float>(SCREEN_HEIGHT),
+		0.1f, 100.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
+		ProcessInput(window);
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		glActiveTexture(skibidiTexture.GetTextureUnitID());
+		glBindTexture(GL_TEXTURE_2D, skibidiTexture.GetTextureID());
+		glActiveTexture(awesomefaceTexture.GetTextureUnitID());
+		glBindTexture(GL_TEXTURE_2D, awesomefaceTexture.GetTextureID());
+
 		glUseProgram(shaderProgram);
-		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "modelTransformationMatrix"),
+			1, GL_FALSE, glm::value_ptr(modelTransformationMatrix));
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewTransformationMatrix"),
+			1, GL_FALSE, glm::value_ptr(viewTransformationMatrix));
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionTransformationMatrix"),
+			1, GL_FALSE, glm::value_ptr(projectionTransformationMatrix));
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		ProcessInput(window);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

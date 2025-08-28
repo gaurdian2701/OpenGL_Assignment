@@ -131,24 +131,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileHandler.cpp" />
-    <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\triangle.frag" />
     <None Include="shaders\triangle.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="FileHandler.h" />
-    <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />

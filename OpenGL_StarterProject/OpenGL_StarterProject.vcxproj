@@ -135,6 +135,7 @@
     <ClCompile Include="FileHandler.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ObjectDrawData.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
@@ -144,9 +145,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="FileHandler.h" />
+    <ClInclude Include="ObjectDrawData.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="VertexAttributePointerData.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />

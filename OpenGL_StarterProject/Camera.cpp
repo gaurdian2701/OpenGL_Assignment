@@ -1,5 +1,9 @@
 #include "Camera.h"
 #include <GLFW/glfw3.h>
+#include "Config.h"
+
+float m_lastX = SCREEN_WIDTH / 2.0f;
+float m_lastY = SCREEN_HEIGHT / 2.0f;
 
 Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 cameraUp, GLFWwindow* window, float cameraSpeed)
 {
@@ -8,7 +12,7 @@ Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 camera
 	m_cameraFront = cameraFront;
 	m_cameraSpeed = cameraSpeed;
 	m_cameraViewMatrix = glm::lookAt(cameraPosition, cameraFront, cameraUp);
-	RotateCamera(-90.0f, 0.0f);
+	RotateCamera();
 }
 
 glm::mat4 Camera::GetViewMatrix()
@@ -17,10 +21,37 @@ glm::mat4 Camera::GetViewMatrix()
 	return m_cameraViewMatrix;
 }
 
-void Camera::ProcessInput(float deltaTime, float yaw, float pitch)
+void Camera::ProcessInput(float deltaTime)
 {
 	MoveCamera(deltaTime);
-	RotateCamera(yaw, pitch);
+	RotateCamera();
+}
+
+void Camera::MouseCallback(double xpos, double ypos)
+{
+	if (m_firstMouse)
+	{
+		m_lastX = xpos;
+		m_lastY = ypos;
+		m_firstMouse = false;
+	}
+
+	float xoffset = xpos - m_lastX;
+	float yoffset = m_lastY - ypos;
+	m_lastX = xpos;
+	m_lastY = ypos;
+
+	float sensitivity = 0.1f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	m_yaw += xoffset;
+	m_pitch += yoffset;
+
+	if (m_pitch > 89.0f)
+		m_pitch = 89.0f;
+	if (m_pitch < -89.0f)
+		m_pitch = -89.0f;
 }
 
 void Camera::MoveCamera(float deltaTime)
@@ -46,10 +77,10 @@ void Camera::MoveCamera(float deltaTime)
 	}
 }
 
-void Camera::RotateCamera(float yaw, float pitch)
+void Camera::RotateCamera()
 {
-	m_cameraFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));	
-	m_cameraFront.y = sin(glm::radians(pitch));
-	m_cameraFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	m_cameraFront.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));	
+	m_cameraFront.y = sin(glm::radians(m_pitch));
+	m_cameraFront.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
 	m_cameraFront = glm::normalize(m_cameraFront);
 }

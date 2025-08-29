@@ -1,26 +1,32 @@
 #pragma once
-#include "glad/glad.h"
 
+#include "glad/glad.h"
 #include "Camera.h"
 #include "FileHandler.h"
 #include "Shader.h"
+#include "ShaderProgram.h"
 #include "Texture.h"
 #include "VertexAttributePointerData.h"
 #include "ObjectDrawData.h"
 #include "Config.h"
 #include <vector>
 
-const std::string vertexShaderFilePath = "shaders/triangle.vert";
-const std::string fragmentShaderFilePath = "shaders/triangle.frag";
+const std::string simpleObjectVertexShaderFilePath = "shaders/simpleObject.vert";
+const std::string lightSourceFragmentShaderFilePath = "shaders/lightSource.frag";
+const std::string illuminatedObjectFragmentShaderFilePath = "shaders/simpleIlluminatedObject.frag";
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
 void ProcessInput(GLFWwindow* window);
+void CreateShaderProgram(const std::string& vertexShaderFilePath,
+	const std::string& fragmentShaderFilePath,
+	Shader** vertexShader,
+	Shader** fragmentShader,
+	ShaderProgram** shaderProgram);
 
 Camera* camera = nullptr;
+FileHandler fileHandler = FileHandler();
 float deltaTime = 0.0f;
-
-
 
 int main()
 {
@@ -29,12 +35,13 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Starter Project", NULL, NULL);
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f), 
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Starter Project", NULL, NULL);
+
+	camera = new Camera(CAMERA_STARTING_POSITION, 
 		glm::vec3(0.0f, 0.0f, -1.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f),
 		window,
-		5.0f);
+		CAMERA_SPEED);
 
 	if (window == NULL)
 	{
@@ -54,8 +61,6 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
-
-	FileHandler fileHandler = FileHandler();
 
 	glm::vec3 cubePositions[] = {
 	glm::vec3(2.0f,  5.0f, -15.0f),
@@ -120,8 +125,12 @@ int main()
 	VertexAttributePointerData textureCoordinateVertexAttributePointerData =
 		VertexAttributePointerData(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 3 * sizeof(float));
 
-	std::vector<VertexAttributePointerData> cubeVertexAttributePointerData = 
-		std::vector<VertexAttributePointerData>{ positionVertexAttributePointerData, textureCoordinateVertexAttributePointerData};
+	std::vector<VertexAttributePointerData*> cubeVertexAttributePointerData = { 
+		&positionVertexAttributePointerData, 
+		&textureCoordinateVertexAttributePointerData};
+
+	std::vector<VertexAttributePointerData*> lightSourceVertexAttributePointerData = {
+		&positionVertexAttributePointerData };
 
 	std::vector<unsigned int> cubeIndices = {};
 
@@ -129,42 +138,34 @@ int main()
 		cubeVertexAttributePointerData,
 		cubeIndices);
 
-	std::string vertexShaderString = "";
-	std::string fragmentShaderString = "";
+	ObjectDrawData* lightSourceDrawData = new ObjectDrawData(cubeDrawData->GetVBO(),
+		lightSourceVertexAttributePointerData,
+		cubeIndices);
 
-	if (!fileHandler.OpenShaderFile(vertexShaderString, vertexShaderFilePath) 
-		|| !fileHandler.OpenShaderFile(fragmentShaderString, fragmentShaderFilePath))
-	{
-		glfwTerminate();
-		return -1;
-	}
+	Shader* simpleObjectVertexShader = nullptr;
+	Shader* lightSourceFragmentShader = nullptr;
+	ShaderProgram* lightSourceShaderProgram = nullptr;
 
-	const char* vertexShaderSource = vertexShaderString.c_str();
-	const char* fragmentShaderSource = fragmentShaderString.c_str();
+	CreateShaderProgram(simpleObjectVertexShaderFilePath,
+		lightSourceFragmentShaderFilePath,
+		&simpleObjectVertexShader,
+		&lightSourceFragmentShader,
+		&lightSourceShaderProgram);
 
-	Shader* vertexShader = new Shader(vertexShaderSource, SHADER_TYPE::VERTEX);
-	Shader* fragmentShader = new Shader(fragmentShaderSource, SHADER_TYPE::FRAGMENT);
+	Shader* illuminatedObjectFragmentShader = nullptr;
+	ShaderProgram* illuminatedObjectShaderProgram = nullptr;
 
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader->GetShaderID());
-	glAttachShader(shaderProgram, fragmentShader->GetShaderID());
-	glLinkProgram(shaderProgram);
-
-
-	Texture skibidiTexture = Texture("textures/skibidi.jpg", GL_LINEAR, GL_LINEAR, GL_RGB, GL_RGB, 0);
-	Texture awesomefaceTexture = Texture("textures/awesomeface.png", GL_LINEAR, GL_LINEAR, GL_RGB, GL_RGBA, 1);
-
-	glUseProgram(shaderProgram);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+	CreateShaderProgram(simpleObjectVertexShaderFilePath,
+		illuminatedObjectFragmentShaderFilePath,
+		&simpleObjectVertexShader,
+		&illuminatedObjectFragmentShader,
+		&illuminatedObjectShaderProgram);
 
 	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
 	glm::mat4 viewTransformationMatrix = glm::mat4(1.0f);
 	glm::mat4 projectionTransformationMatrix = glm::mat4(1.0f);
 
 	float lastFrame = 0.0f;
-
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -176,10 +177,6 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		glActiveTexture(skibidiTexture.GetTextureUnitID());
-		glBindTexture(GL_TEXTURE_2D, skibidiTexture.GetTextureID());
-		glActiveTexture(awesomefaceTexture.GetTextureUnitID());
-		glBindTexture(GL_TEXTURE_2D, awesomefaceTexture.GetTextureID());
 
 		viewTransformationMatrix = camera->GetViewMatrix();
 
@@ -187,14 +184,22 @@ int main()
 			static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT),
 			0.1f, 100.0f);
 
-		glUseProgram(shaderProgram);
+		glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
+		modelTransformationMatrix = glm::translate(modelTransformationMatrix, glm::vec3(0.0f, 0.0f, -10.0f));
+
+		lightSourceShaderProgram->Use();
+		glBindVertexArray(lightSourceDrawData->GetVAO());
+
+		lightSourceShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
+		lightSourceShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
+		lightSourceShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
+		lightSourceShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		illuminatedObjectShaderProgram->Use();
 		glBindVertexArray(cubeDrawData->GetVAO());
-
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewTransformationMatrix"),
-			1, GL_FALSE, glm::value_ptr(viewTransformationMatrix));
-
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionTransformationMatrix"),
-			1, GL_FALSE, glm::value_ptr(projectionTransformationMatrix));  
+		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
+		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 
 		for(int i = 0; i < 9; i++)
 		{
@@ -203,9 +208,10 @@ int main()
 			modelTransformationMatrix = glm::rotate(modelTransformationMatrix,
 				static_cast<float>(glfwGetTime()), glm::vec3(1.0f, 0.0f, 0.0f));
 
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "modelTransformationMatrix"),
-				1, GL_FALSE, glm::value_ptr(modelTransformationMatrix));
-
+			illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));	
+			illuminatedObjectShaderProgram->SetVec3Float("objectColor", OBJECT_COLOR);
+			illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
+			illuminatedObjectShaderProgram->SetFloat("lightIntensity", LIGHT_INTENSITY);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
@@ -213,11 +219,49 @@ int main()
 		glfwPollEvents();
 	}
 
-	delete vertexShader;
-	delete fragmentShader;
+	delete cubeDrawData;
+	delete lightSourceDrawData;
+	delete simpleObjectVertexShader;
+	delete lightSourceFragmentShader;
+	delete lightSourceShaderProgram;
+	delete illuminatedObjectFragmentShader;
+	delete illuminatedObjectShaderProgram;
+	
 
 	glfwTerminate();
 	return 0;
+}
+
+
+void CreateShaderProgram(const std::string& vertexShaderFilePath,
+	const std::string& fragmentShaderFilePath,
+	Shader** vertexShader,
+	Shader** fragmentShader,
+	ShaderProgram** shaderProgram)
+{
+	std::string vertexShaderString = "";
+	std::string fragmentShaderString = "";
+
+	if (!fileHandler.OpenShaderFile(vertexShaderString, vertexShaderFilePath)
+		|| !fileHandler.OpenShaderFile(fragmentShaderString, fragmentShaderFilePath))
+	{
+		glfwTerminate();
+	}
+
+	const char* vertexShaderSource = vertexShaderString.c_str();
+	const char* fragmentShaderSource = fragmentShaderString.c_str();
+
+	if(*vertexShader == nullptr)
+	{
+		*vertexShader = new Shader(vertexShaderSource, SHADER_TYPE::VERTEX);
+	}
+
+	if (*fragmentShader == nullptr)
+	{
+		*fragmentShader = new Shader(fragmentShaderSource, SHADER_TYPE::FRAGMENT);
+	}
+
+	*shaderProgram = new ShaderProgram(*vertexShader, *fragmentShader);
 }
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height)
@@ -237,3 +281,4 @@ void ProcessInput(GLFWwindow* window)
 
 	camera->ProcessInput(deltaTime);
 }
+

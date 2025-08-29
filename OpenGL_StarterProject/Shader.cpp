@@ -6,7 +6,6 @@
 
 Shader::Shader(const char* shaderSource, SHADER_TYPE shaderType)
 {
-
 	if (shaderType == SHADER_TYPE::VERTEX)
 	{
 		m_shaderID = glCreateShader(GL_VERTEX_SHADER);

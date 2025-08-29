@@ -137,11 +137,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectDrawData.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\triangle.frag" />
-    <None Include="shaders\triangle.vert" />
+    <None Include="shaders\simpleIlluminatedObject.frag" />
+    <None Include="shaders\simpleObject.vert" />
+    <None Include="shaders\skibidi.frag" />
+    <None Include="shaders\skibidi.vert" />
+    <None Include="shaders\lightSource.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -149,6 +153,7 @@
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="ObjectDrawData.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexAttributePointerData.h" />
   </ItemGroup>

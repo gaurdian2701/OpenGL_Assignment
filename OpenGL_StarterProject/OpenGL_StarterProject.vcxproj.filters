@@ -36,10 +36,16 @@
     <ClCompile Include="ObjectDrawData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\triangle.vert" />
-    <None Include="shaders\triangle.frag" />
+    <None Include="shaders\skibidi.vert" />
+    <None Include="shaders\skibidi.frag" />
+    <None Include="shaders\lightSource.frag" />
+    <None Include="shaders\simpleIlluminatedObject.frag" />
+    <None Include="shaders\simpleObject.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandler.h">
@@ -61,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

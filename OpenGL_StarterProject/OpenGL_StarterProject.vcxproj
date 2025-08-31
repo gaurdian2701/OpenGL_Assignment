@@ -138,10 +138,13 @@
     <ClCompile Include="ObjectDrawData.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <None Include="shaders\diffuseIllumination.frag">
+      <FileType>Document</FileType>
+    </None>
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\simpleIlluminatedObject.frag" />
+    <None Include="shaders\ambientIllumination.frag" />
     <None Include="shaders\simpleObject.vert" />
     <None Include="shaders\skibidi.frag" />
     <None Include="shaders\skibidi.vert" />

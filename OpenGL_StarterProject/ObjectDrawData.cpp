@@ -2,7 +2,8 @@
 #include "glad/glad.h"
 #include "VertexAttributePointerData.h"
 
-ObjectDrawData::ObjectDrawData(std::vector<float>& vertexAttributeData, std::vector<VertexAttributePointerData*>& vertexAttributePointerData,
+ObjectDrawData::ObjectDrawData(std::vector<float>& vertexAttributeData,
+	std::vector<VertexAttributePointerData*>& vertexAttributePointerData,
 	std::vector<unsigned int>& indices)
 {
 	glGenVertexArrays(1, &m_VAO);

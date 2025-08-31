@@ -13,7 +13,8 @@
 
 const std::string simpleObjectVertexShaderFilePath = "shaders/simpleObject.vert";
 const std::string lightSourceFragmentShaderFilePath = "shaders/lightSource.frag";
-const std::string illuminatedObjectFragmentShaderFilePath = "shaders/simpleIlluminatedObject.frag";
+const std::string ambientIlluminationFragmentShaderPath = "shaders/ambientIllumination.frag";
+const std::string diffuseIlluminationFragmentShaderPath = "shaders/diffuseIllumination.frag";
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -76,58 +77,62 @@ int main()
 
 	std::vector<float> cubeVertexData = {
 		//Positions         //Texture Coords	
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,	0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	0.0f,  0.0f, -1.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	0.0f,  0.0f,  1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	0.0f,  0.0f,  1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	0.0f,  0.0f,  1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	0.0f,  0.0f,  1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,	0.0f,  0.0f,  1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	0.0f,  0.0f,  1.0f,
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f,  0.0f,  0.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,	0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	0.0f, -1.0f,  0.0f,
 
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,	0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	0.0f,  1.0f,  0.0f,
 	};
 
 	VertexAttributePointerData positionVertexAttributePointerData = 
-		VertexAttributePointerData(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+		VertexAttributePointerData(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
 
 	VertexAttributePointerData textureCoordinateVertexAttributePointerData =
-		VertexAttributePointerData(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 3 * sizeof(float));
+		VertexAttributePointerData(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 3 * sizeof(float));
+
+	VertexAttributePointerData normalVertexAttributePointerData =
+		VertexAttributePointerData(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 5 * sizeof(float));
 
 	std::vector<VertexAttributePointerData*> cubeVertexAttributePointerData = { 
 		&positionVertexAttributePointerData, 
-		&textureCoordinateVertexAttributePointerData};
+		&textureCoordinateVertexAttributePointerData,
+		&normalVertexAttributePointerData};
 
 	std::vector<VertexAttributePointerData*> lightSourceVertexAttributePointerData = {
 		&positionVertexAttributePointerData };
@@ -164,12 +169,18 @@ int main()
 	ShaderProgram* illuminatedObjectShaderProgram = nullptr;
 
 	CreateShaderProgram(simpleObjectVertexShaderFilePath,
-		illuminatedObjectFragmentShaderFilePath,
+		diffuseIlluminationFragmentShaderPath,
 		&simpleObjectVertexShader,
 		&illuminatedObjectFragmentShader,
 		&illuminatedObjectShaderProgram);
 
+	illuminatedObjectShaderProgram->Use();
+	illuminatedObjectShaderProgram->SetVec3Float("lightPosition", LIGHT_SOURCE_POSITION);
 	illuminatedObjectShaderProgram->SetInt("mainTexture", containerTexture->GetTextureID());
+	illuminatedObjectShaderProgram->SetFloat("lightIntensity", LIGHT_INTENSITY);
+	illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
+	illuminatedObjectShaderProgram->SetVec3Float("objectColor", OBJECT_COLOR);
+
 
 	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
 	glm::mat4 viewTransformationMatrix = glm::mat4(1.0f);
@@ -195,7 +206,7 @@ int main()
 			0.1f, 100.0f);
 
 		glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
-		modelTransformationMatrix = glm::translate(modelTransformationMatrix, glm::vec3(0.0f, 0.0f, -10.0f));
+		modelTransformationMatrix = glm::translate(modelTransformationMatrix, LIGHT_SOURCE_POSITION);
 
 		lightSourceShaderProgram->Use();
 		glBindVertexArray(lightSourceDrawData->GetVAO());
@@ -211,6 +222,9 @@ int main()
 		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 
+		glActiveTexture(containerTexture->GetTextureUnitID());
+		glBindTexture(GL_TEXTURE_2D, containerTexture->GetTextureID());
+
 		for(int i = 0; i < 9; i++)
 		{
 			modelTransformationMatrix = glm::mat4(1.0f);
@@ -219,12 +233,6 @@ int main()
 				static_cast<float>(glfwGetTime()), glm::vec3(1.0f, 0.0f, 0.0f));
 
 			illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));	
-			illuminatedObjectShaderProgram->SetVec3Float("objectColor", OBJECT_COLOR);
-			illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
-			illuminatedObjectShaderProgram->SetFloat("lightIntensity", LIGHT_INTENSITY);
-
-			glActiveTexture(containerTexture->GetTextureUnitID());
-			glBindTexture(GL_TEXTURE_2D, containerTexture->GetTextureID());
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 

@@ -44,8 +44,11 @@
     <None Include="shaders\skibidi.vert" />
     <None Include="shaders\skibidi.frag" />
     <None Include="shaders\lightSource.frag" />
-    <None Include="shaders\simpleIlluminatedObject.frag" />
     <None Include="shaders\simpleObject.vert" />
+    <None Include="shaders\ambientIllumination.frag" />
+    <None Include="shaders\diffuseIllumination.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandler.h">

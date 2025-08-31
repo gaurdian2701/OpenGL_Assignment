@@ -13,4 +13,3 @@ void main()
 {
 	FragColor = vec4(objectColor * lightColor * lightIntensity, 1.0) * texture(mainTexture, TexCoord);
 }
-

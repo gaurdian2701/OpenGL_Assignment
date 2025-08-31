@@ -142,6 +142,14 @@ int main()
 		lightSourceVertexAttributePointerData,
 		cubeIndices);
 
+	Texture* containerTexture = new Texture("textures/container.jpg",
+		GL_LINEAR_MIPMAP_LINEAR,
+		GL_LINEAR,
+		GL_RGB,
+		GL_RGB,
+		0);
+
+
 	Shader* simpleObjectVertexShader = nullptr;
 	Shader* lightSourceFragmentShader = nullptr;
 	ShaderProgram* lightSourceShaderProgram = nullptr;
@@ -160,6 +168,8 @@ int main()
 		&simpleObjectVertexShader,
 		&illuminatedObjectFragmentShader,
 		&illuminatedObjectShaderProgram);
+
+	illuminatedObjectShaderProgram->SetInt("mainTexture", containerTexture->GetTextureID());
 
 	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
 	glm::mat4 viewTransformationMatrix = glm::mat4(1.0f);
@@ -212,6 +222,9 @@ int main()
 			illuminatedObjectShaderProgram->SetVec3Float("objectColor", OBJECT_COLOR);
 			illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
 			illuminatedObjectShaderProgram->SetFloat("lightIntensity", LIGHT_INTENSITY);
+
+			glActiveTexture(containerTexture->GetTextureUnitID());
+			glBindTexture(GL_TEXTURE_2D, containerTexture->GetTextureID());
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 

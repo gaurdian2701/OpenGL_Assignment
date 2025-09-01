@@ -9,12 +9,16 @@
 #include "VertexAttributePointerData.h"
 #include "ObjectDrawData.h"
 #include "Config.h"
+#include "assimp/aabb.h"
 #include <vector>
 
 const std::string simpleObjectVertexShaderFilePath = "shaders/simpleObject.vert";
 const std::string lightSourceFragmentShaderFilePath = "shaders/lightSource.frag";
 const std::string ambientIlluminationFragmentShaderPath = "shaders/ambientIllumination.frag";
 const std::string diffuseIlluminationFragmentShaderPath = "shaders/diffuseIllumination.frag";
+const std::string specularIlluminationFragmentShaderPath = "shaders/specularIllumination.frag";
+const std::string containerTextureFilePath = "textures/container.png";
+const std::string containerSpecularTextureFilePath = "textures/container_specular.png";
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -76,7 +80,7 @@ int main()
 	};
 
 	std::vector<float> cubeVertexData = {
-		//Positions         //Texture Coords	
+		//Positions       //TexCoords   //Normals	
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	0.0f,  0.0f, -1.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,	0.0f,  0.0f, -1.0f,
 	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  0.0f, -1.0f,
@@ -147,13 +151,19 @@ int main()
 		lightSourceVertexAttributePointerData,
 		cubeIndices);
 
-	Texture* containerTexture = new Texture("textures/container.jpg",
+	Texture* containerTexture = new Texture(containerTextureFilePath.c_str(),
 		GL_LINEAR_MIPMAP_LINEAR,
 		GL_LINEAR,
 		GL_RGB,
-		GL_RGB,
+		GL_RGBA,
 		0);
 
+	Texture* containerSpecularTexture = new Texture(containerSpecularTextureFilePath.c_str(),
+		GL_LINEAR_MIPMAP_LINEAR,
+		GL_LINEAR,
+		GL_RGB,
+		GL_RGBA,
+		1);
 
 	Shader* simpleObjectVertexShader = nullptr;
 	Shader* lightSourceFragmentShader = nullptr;
@@ -169,18 +179,20 @@ int main()
 	ShaderProgram* illuminatedObjectShaderProgram = nullptr;
 
 	CreateShaderProgram(simpleObjectVertexShaderFilePath,
-		diffuseIlluminationFragmentShaderPath,
+		specularIlluminationFragmentShaderPath,
 		&simpleObjectVertexShader,
 		&illuminatedObjectFragmentShader,
 		&illuminatedObjectShaderProgram);
 
-	illuminatedObjectShaderProgram->Use();
-	illuminatedObjectShaderProgram->SetVec3Float("lightPosition", LIGHT_SOURCE_POSITION);
-	illuminatedObjectShaderProgram->SetInt("mainTexture", containerTexture->GetTextureID());
-	illuminatedObjectShaderProgram->SetFloat("lightIntensity", LIGHT_INTENSITY);
-	illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
-	illuminatedObjectShaderProgram->SetVec3Float("objectColor", OBJECT_COLOR);
 
+
+	illuminatedObjectShaderProgram->Use();
+	illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
+	illuminatedObjectShaderProgram->SetVec3Float("lightPosition", LIGHT_SOURCE_POSITION);
+	illuminatedObjectShaderProgram->SetVec3Float("objectMaterial.ambient", AMBIENT_MATERIAL_COLOR);
+	illuminatedObjectShaderProgram->SetInt("objectMaterial.diffuseMap", containerTexture->GetTextureSlotID());
+	illuminatedObjectShaderProgram->SetInt("objectMaterial.specularMap", containerSpecularTexture->GetTextureSlotID());
+	illuminatedObjectShaderProgram->SetFloat("objectMaterial.shininess", SPECULAR_MATERIAL_SHININESS);
 
 	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
 	glm::mat4 viewTransformationMatrix = glm::mat4(1.0f);
@@ -197,6 +209,7 @@ int main()
 		ProcessInput(window);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z, BACKGROUND_COLOUR.w);
 		glEnable(GL_DEPTH_TEST);
 
 		viewTransformationMatrix = camera->GetViewMatrix();
@@ -221,9 +234,12 @@ int main()
 		glBindVertexArray(cubeDrawData->GetVAO());
 		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
+		illuminatedObjectShaderProgram->SetVec3Float("viewPosition", camera->GetCameraPosition());
 
 		glActiveTexture(containerTexture->GetTextureUnitID());
 		glBindTexture(GL_TEXTURE_2D, containerTexture->GetTextureID());
+		glActiveTexture(containerSpecularTexture->GetTextureUnitID());
+		glBindTexture(GL_TEXTURE_2D, containerSpecularTexture->GetTextureID());
 
 		for(int i = 0; i < 9; i++)
 		{

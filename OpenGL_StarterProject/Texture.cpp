@@ -7,7 +7,8 @@ Texture::Texture(const char* textureFilePath, GLenum minFilerConfig, GLenum magF
 	GLint internalImageFormat, GLenum pixelFormat, unsigned int textureUnitID)
 {
 	glGenTextures(1, &m_textureID);
-	textureUnitID = GL_TEXTURE0 + textureUnitID;
+	m_textureUnitID = GL_TEXTURE0 + textureUnitID;
+	m_textureSlotID = textureUnitID;
 	glActiveTexture(textureUnitID);
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -33,4 +34,14 @@ Texture::Texture(const char* textureFilePath, GLenum minFilerConfig, GLenum magF
 unsigned int Texture::GetTextureID() const
 {
 	return m_textureID;
-}	
+}
+unsigned int Texture::GetTextureUnitID() const
+{
+	return m_textureUnitID;
+}
+
+unsigned int Texture::GetTextureSlotID() const
+{
+	return m_textureSlotID;
+}
+

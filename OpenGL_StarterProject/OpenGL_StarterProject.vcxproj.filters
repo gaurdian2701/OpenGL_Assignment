@@ -49,6 +49,7 @@
     <None Include="shaders\diffuseIllumination.frag">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="shaders\specularIllumination.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandler.h">
@@ -84,6 +85,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="textures\skibidi.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\container.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

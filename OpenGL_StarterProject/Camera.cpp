@@ -21,6 +21,11 @@ glm::mat4 Camera::GetViewMatrix()
 	return m_cameraViewMatrix;
 }
 
+glm::vec3 Camera::GetCameraPosition() const
+{
+	return m_cameraPosition;
+}
+
 void Camera::ProcessInput(float deltaTime)
 {
 	MoveCamera(deltaTime);

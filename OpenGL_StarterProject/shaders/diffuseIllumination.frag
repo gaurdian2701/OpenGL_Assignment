@@ -18,5 +18,5 @@ void main()
 	vec3 normal = normalize(Normal);
 	vec3 diffuseFactor = max(dot(normal, directionToLight), 0.0) * lightColor;
 	vec3 ambientFactor = lightIntensity * lightColor;
-	FragColor = vec4((ambientFactor + diffuseFactor) * objectColor, 1.0);
+	FragColor = vec4((ambientFactor + diffuseFactor) * objectColor, 1.0) * texture(mainTexture, TexCoord);
 }

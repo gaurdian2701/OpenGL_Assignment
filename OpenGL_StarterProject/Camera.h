@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/ext/vector_float3.hpp>
 
 class Camera
 {
@@ -12,6 +11,7 @@ public:
 	void ProcessInput(float deltaTime);
 	void MouseCallback(double xpos, double ypos);
 	glm::mat4 GetViewMatrix();
+	glm::vec3 GetCameraPosition() const;
 
 private:
 	glm::mat4 m_cameraViewMatrix;

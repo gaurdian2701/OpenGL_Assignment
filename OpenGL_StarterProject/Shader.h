@@ -13,9 +13,10 @@ public:
 	~Shader();
 	unsigned int GetShaderID() const;
 
-protected:
+private:
 	virtual void TryShaderCompilation();
 
-protected:
+private:
 	unsigned int m_shaderID = 0;
+	const char* m_shaderSource;
 };

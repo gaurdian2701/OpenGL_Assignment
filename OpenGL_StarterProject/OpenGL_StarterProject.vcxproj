@@ -136,12 +136,20 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileHandler.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ObjectDrawData.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <None Include="imgui\imgui.natstepfilter" />
     <None Include="shaders\diffuseIllumination.frag">
       <FileType>Document</FileType>
     </None>
@@ -160,6 +168,15 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="FileHandler.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ObjectDrawData.h" />
@@ -173,6 +190,9 @@
     <Image Include="textures\container.png" />
     <Image Include="textures\container_specular.png" />
     <Image Include="textures\skibidi.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="imgui\imgui.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

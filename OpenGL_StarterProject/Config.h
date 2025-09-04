@@ -5,7 +5,7 @@
 //SCREEN CONFIGS
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 800;
-const glm::vec4 BACKGROUND_COLOUR(0.0f, 0.0f, 0.0f, 1.0f);
+const glm::vec4 BACKGROUND_COLOUR(1.0f, 1.0f, 1.0f, 1.0f);
 
 //CAMERA CONFIGS
 const float CAMERA_SPEED = 5.0f;
@@ -24,14 +24,16 @@ const float SPECULAR_MATERIAL_SHININESS = 8.0f;
 //MODEL CONFIGS
 const std::string MODEL_PATH = std::filesystem::path{"3DModels/grass/grass.obj"}.string();
 
-
 //SHADER FILE PATHS
-const std::string simpleObjectVertexShaderFilePath = "shaders/simpleObject.vert";
-const std::string lightSourceFragmentShaderFilePath = "shaders/lightSource.frag";
-const std::string phongLightingFragmentShaderPath = "shaders/phongLighting.frag";
-const std::string plainTextureFragmentShaderFilePath = "shaders/plainTexture.frag";
-const std::string grassFragmentShaderFilePath = "shaders/grass.frag";
+const std::string SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/simpleObject.vert";
+const std::string LIGHT_SOURCE_FRAGMENT_SHADER_FILEPATH = "shaders/lightSource.frag";
+const std::string PHONG_LIGHTING_FRAGMENT_SHADER_FILEPATH = "shaders/phongLighting.frag";
+const std::string PLAIN_TEXTURE_FRAGMENT_SHADER_FILEPATH = "shaders/plainTexture.frag";
+const std::string GRASS_FRAGMENT_SHADER_FILEPATH = "shaders/grass.frag";
 
 //TEXTURE FILE PATHS
-const std::string containerTextureFilePath = "textures/container.png";
-const std::string containerSpecularTextureFilePath = "textures/container_specular.png";
+const std::string CONTAINER_TEXTURE_FILEPATH = "textures/container.png";
+const std::string CONTAINER_SPECULAR_TEXTURE_FILEPATH = "textures/container_specular.png";
+
+//GRASS CONFIGS
+const unsigned int NUMBER_OF_GRASS_OBJECTS = 100;

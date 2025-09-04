@@ -73,12 +73,14 @@ void Camera::MoveCamera(float deltaTime)
 
 	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		m_cameraPosition -= glm::normalize(glm::cross(m_cameraFront, glm::vec3(0.0f, 1.0f, 0.0f))) * m_cameraSpeed * deltaTime;
+		m_cameraPosition -= glm::normalize(glm::cross(m_cameraFront,
+			glm::vec3(0.0f, 1.0f, 0.0f))) * m_cameraSpeed * deltaTime;
 	}
 
 	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		m_cameraPosition += glm::normalize(glm::cross(m_cameraFront, glm::vec3(0.0f, 1.0f, 0.0f))) * m_cameraSpeed * deltaTime;
+		m_cameraPosition += glm::normalize(glm::cross(m_cameraFront,
+			glm::vec3(0.0f, 1.0f, 0.0f))) * m_cameraSpeed * deltaTime;
 	}
 }
 

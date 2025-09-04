@@ -8,6 +8,9 @@
 #include "Config.h"
 #include <vector>
 #include "Model.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -17,10 +20,15 @@ void CreateShaderProgram(const std::string& vertexShaderFilePath,
 	Shader** vertexShader,
 	Shader** fragmentShader,
 	ShaderProgram** shaderProgram);
+void StartImGuiFrame();
+void EndImGuiFrame();
+void ShutdownImgui();
+void CheckForCursorVisibility(GLFWwindow* window);
 
 Camera* camera = nullptr;
 FileHandler fileHandler = FileHandler();
 float deltaTime = 0.0f;
+bool cursorHidden = true;
 
 int main()
 {
@@ -44,6 +52,7 @@ int main()
 		return -1;
 	}
 
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, Framebuffer_Size_Callback);
@@ -56,12 +65,19 @@ int main()
 		return -1;
 	}
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& imguiIO = ImGui::GetIO();
+	imguiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init();
+
 	Shader* simpleObjectVertexShader = nullptr;
 	Shader* lightSourceFragmentShader = nullptr;
 	ShaderProgram* lightSourceShaderProgram = nullptr;
 
-	CreateShaderProgram(simpleObjectVertexShaderFilePath,
-		lightSourceFragmentShaderFilePath,
+	CreateShaderProgram(SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH,
+		LIGHT_SOURCE_FRAGMENT_SHADER_FILEPATH,
 		&simpleObjectVertexShader,
 		&lightSourceFragmentShader,
 		&lightSourceShaderProgram);
@@ -69,13 +85,13 @@ int main()
 	Shader* illuminatedObjectFragmentShader = nullptr;
 	ShaderProgram* illuminatedObjectShaderProgram = nullptr;
 
-	CreateShaderProgram(simpleObjectVertexShaderFilePath,
-		grassFragmentShaderFilePath,
+	CreateShaderProgram(SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH,
+		GRASS_FRAGMENT_SHADER_FILEPATH,
 		&simpleObjectVertexShader,
 		&illuminatedObjectFragmentShader,
 		&illuminatedObjectShaderProgram);
 
-	Model model(MODEL_PATH.c_str());
+	Model grassModel(MODEL_PATH.c_str());
 
 	illuminatedObjectShaderProgram->Use();
 	illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
@@ -94,7 +110,10 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		glfwPollEvents();
+		StartImGuiFrame();
 		ProcessInput(window);
+		CheckForCursorVisibility(window);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z, BACKGROUND_COLOUR.w);
@@ -118,23 +137,23 @@ int main()
 		lightSourceShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 		lightSourceShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
 		lightSourceShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 36, NUMBER_OF_GRASS_OBJECTS);
 
 		illuminatedObjectShaderProgram->Use();
 		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 		illuminatedObjectShaderProgram->SetVec3Float("viewPosition", camera->GetCameraPosition());
 
-		modelTransformationMatrix = glm::mat4(1.0f);
-		modelTransformationMatrix = glm::translate(modelTransformationMatrix, glm::vec3(0.0f, 0.0f, -5.0f));
-		modelTransformationMatrix = glm::scale(modelTransformationMatrix, glm::vec3(1.0f));
+		for (unsigned int i = 0; i < NUMBER_OF_GRASS_OBJECTS; i++)
+		{
+			modelTransformationMatrix = glm::mat4(1.0f);
+			modelTransformationMatrix = glm::translate(modelTransformationMatrix, glm::vec3(0.0f, 0.0f, -1.0f * i));
+			illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
+			grassModel.Draw(illuminatedObjectShaderProgram);
+		}
 
-		illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
-		model.Draw(illuminatedObjectShaderProgram);
-
-
+		EndImGuiFrame();
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	delete simpleObjectVertexShader;
@@ -143,7 +162,7 @@ int main()
 	delete illuminatedObjectFragmentShader;
 	delete illuminatedObjectShaderProgram;
 	
-
+	ShutdownImgui();
 	glfwTerminate();
 	return 0;
 }
@@ -180,6 +199,29 @@ void CreateShaderProgram(const std::string& vertexShaderFilePath,
 	*shaderProgram = new ShaderProgram(*vertexShader, *fragmentShader);
 }
 
+void StartImGuiFrame()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
+}
+
+void EndImGuiFrame()
+{
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ShutdownImgui()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
+
+
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -187,14 +229,30 @@ void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height)
 
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos)
 {
+
 	camera->MouseCallback(xpos, ypos);
 }
 
 void ProcessInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
 		glfwSetWindowShouldClose(window, true);
+	}
 
-	camera->ProcessInput(deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+	{
+		cursorHidden = !cursorHidden;
+	}
+
+	if (!cursorHidden)
+	{
+		camera->ProcessInput(deltaTime);
+	}
+}
+
+void CheckForCursorVisibility(GLFWwindow* window)
+{
+	glfwSetInputMode(window, GLFW_CURSOR, cursorHidden == false ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 

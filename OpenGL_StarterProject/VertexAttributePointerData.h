@@ -12,6 +12,16 @@ public:
 		m_startingOffset = startingOffset;
 	}
 
+	VertexAttributePointerData(const VertexAttributePointerData& other)
+	{
+		m_index = other.m_index;
+		m_size = other.m_size;
+		m_type = other.m_type;
+		m_normalized = other.m_normalized;
+		m_stride = other.m_stride;
+		m_startingOffset = other.m_startingOffset;
+	}
+
 	bool m_normalized = false;
 	int m_index = 0;
 	int m_size = 0;

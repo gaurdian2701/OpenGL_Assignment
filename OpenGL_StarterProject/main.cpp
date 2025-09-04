@@ -5,20 +5,9 @@
 #include "FileHandler.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
-#include "Texture.h"
-#include "VertexAttributePointerData.h"
-#include "ObjectDrawData.h"
 #include "Config.h"
-#include "assimp/aabb.h"
 #include <vector>
-
-const std::string simpleObjectVertexShaderFilePath = "shaders/simpleObject.vert";
-const std::string lightSourceFragmentShaderFilePath = "shaders/lightSource.frag";
-const std::string ambientIlluminationFragmentShaderPath = "shaders/ambientIllumination.frag";
-const std::string diffuseIlluminationFragmentShaderPath = "shaders/diffuseIllumination.frag";
-const std::string specularIlluminationFragmentShaderPath = "shaders/specularIllumination.frag";
-const std::string containerTextureFilePath = "textures/container.png";
-const std::string containerSpecularTextureFilePath = "textures/container_specular.png";
+#include "Model.h"
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -67,104 +56,6 @@ int main()
 		return -1;
 	}
 
-	glm::vec3 cubePositions[] = {
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	std::vector<float> cubeVertexData = {
-		//Positions       //TexCoords   //Normals	
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	0.0f,  0.0f, -1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,	0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  0.0f, -1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	0.0f,  0.0f, -1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	0.0f,  0.0f, -1.0f,
-
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	0.0f,  0.0f,  1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	0.0f,  0.0f,  1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	0.0f,  0.0f,  1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	0.0f,  0.0f,  1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,	0.0f,  0.0f,  1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	0.0f,  0.0f,  1.0f,
-
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f,  0.0f,  0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,	0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	0.0f, -1.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	0.0f, -1.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	0.0f, -1.0f,  0.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	0.0f,  1.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,	0.0f,  1.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	0.0f,  1.0f,  0.0f,
-	};
-
-	VertexAttributePointerData positionVertexAttributePointerData = 
-		VertexAttributePointerData(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
-
-	VertexAttributePointerData textureCoordinateVertexAttributePointerData =
-		VertexAttributePointerData(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 3 * sizeof(float));
-
-	VertexAttributePointerData normalVertexAttributePointerData =
-		VertexAttributePointerData(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 5 * sizeof(float));
-
-	std::vector<VertexAttributePointerData*> cubeVertexAttributePointerData = { 
-		&positionVertexAttributePointerData, 
-		&textureCoordinateVertexAttributePointerData,
-		&normalVertexAttributePointerData};
-
-	std::vector<VertexAttributePointerData*> lightSourceVertexAttributePointerData = {
-		&positionVertexAttributePointerData };
-
-	std::vector<unsigned int> cubeIndices = {};
-
-	ObjectDrawData* cubeDrawData = new ObjectDrawData(cubeVertexData,
-		cubeVertexAttributePointerData,
-		cubeIndices);
-
-	ObjectDrawData* lightSourceDrawData = new ObjectDrawData(cubeDrawData->GetVBO(),
-		lightSourceVertexAttributePointerData,
-		cubeIndices);
-
-	Texture* containerTexture = new Texture(containerTextureFilePath.c_str(),
-		GL_LINEAR_MIPMAP_LINEAR,
-		GL_LINEAR,
-		GL_RGB,
-		GL_RGBA,
-		0);
-
-	Texture* containerSpecularTexture = new Texture(containerSpecularTextureFilePath.c_str(),
-		GL_LINEAR_MIPMAP_LINEAR,
-		GL_LINEAR,
-		GL_RGB,
-		GL_RGBA,
-		1);
-
 	Shader* simpleObjectVertexShader = nullptr;
 	Shader* lightSourceFragmentShader = nullptr;
 	ShaderProgram* lightSourceShaderProgram = nullptr;
@@ -179,20 +70,17 @@ int main()
 	ShaderProgram* illuminatedObjectShaderProgram = nullptr;
 
 	CreateShaderProgram(simpleObjectVertexShaderFilePath,
-		specularIlluminationFragmentShaderPath,
+		grassFragmentShaderFilePath,
 		&simpleObjectVertexShader,
 		&illuminatedObjectFragmentShader,
 		&illuminatedObjectShaderProgram);
 
-
+	Model model(MODEL_PATH.c_str());
 
 	illuminatedObjectShaderProgram->Use();
 	illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
 	illuminatedObjectShaderProgram->SetVec3Float("lightPosition", LIGHT_SOURCE_POSITION);
-	illuminatedObjectShaderProgram->SetVec3Float("objectMaterial.ambient", AMBIENT_MATERIAL_COLOR);
-	illuminatedObjectShaderProgram->SetInt("objectMaterial.diffuseMap", containerTexture->GetTextureSlotID());
-	illuminatedObjectShaderProgram->SetInt("objectMaterial.specularMap", containerSpecularTexture->GetTextureSlotID());
-	illuminatedObjectShaderProgram->SetFloat("objectMaterial.shininess", SPECULAR_MATERIAL_SHININESS);
+	illuminatedObjectShaderProgram->SetFloat("material.shininess", SPECULAR_MATERIAL_SHININESS);
 
 	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
 	glm::mat4 viewTransformationMatrix = glm::mat4(1.0f);
@@ -211,6 +99,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z, BACKGROUND_COLOUR.w);
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_CULL_FACE);
 
 		viewTransformationMatrix = camera->GetViewMatrix();
 
@@ -222,7 +113,6 @@ int main()
 		modelTransformationMatrix = glm::translate(modelTransformationMatrix, LIGHT_SOURCE_POSITION);
 
 		lightSourceShaderProgram->Use();
-		glBindVertexArray(lightSourceDrawData->GetVAO());
 
 		lightSourceShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		lightSourceShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
@@ -231,33 +121,22 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		illuminatedObjectShaderProgram->Use();
-		glBindVertexArray(cubeDrawData->GetVAO());
 		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 		illuminatedObjectShaderProgram->SetVec3Float("viewPosition", camera->GetCameraPosition());
 
-		glActiveTexture(containerTexture->GetTextureUnitID());
-		glBindTexture(GL_TEXTURE_2D, containerTexture->GetTextureID());
-		glActiveTexture(containerSpecularTexture->GetTextureUnitID());
-		glBindTexture(GL_TEXTURE_2D, containerSpecularTexture->GetTextureID());
+		modelTransformationMatrix = glm::mat4(1.0f);
+		modelTransformationMatrix = glm::translate(modelTransformationMatrix, glm::vec3(0.0f, 0.0f, -5.0f));
+		modelTransformationMatrix = glm::scale(modelTransformationMatrix, glm::vec3(1.0f));
 
-		for(int i = 0; i < 9; i++)
-		{
-			modelTransformationMatrix = glm::mat4(1.0f);
-			modelTransformationMatrix = glm::translate(modelTransformationMatrix, cubePositions[i]);
-			modelTransformationMatrix = glm::rotate(modelTransformationMatrix,
-				static_cast<float>(glfwGetTime()), glm::vec3(1.0f, 0.0f, 0.0f));
+		illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
+		model.Draw(illuminatedObjectShaderProgram);
 
-			illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));	
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	delete cubeDrawData;
-	delete lightSourceDrawData;
 	delete simpleObjectVertexShader;
 	delete lightSourceFragmentShader;
 	delete lightSourceShaderProgram;

@@ -2,32 +2,48 @@
 #include "glad/glad.h"
 #include "VertexAttributePointerData.h"
 
-ObjectDrawData::ObjectDrawData(std::vector<float>& vertexAttributeData,
-	std::vector<VertexAttributePointerData*>& vertexAttributePointerData,
-	std::vector<unsigned int>& indices)
+ObjectDrawData::ObjectDrawData(std::vector<float>* vertexAttributeData,
+	std::vector<VertexAttributePointerData*>* vertexAttributePointerData,
+	std::vector<unsigned int>* indices)
 {
+	m_vertexAttributeData = *vertexAttributeData;
+
+	for(int i = 0; i < vertexAttributePointerData->size(); i++)
+	{
+		m_vertexAttributePointerData.push_back(*(*vertexAttributePointerData)[i]);
+	}
+
+	m_indices = *indices;
+
 	glGenVertexArrays(1, &m_VAO);
 	glBindVertexArray(m_VAO);
 
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertexAttributeData.size() * sizeof(float), vertexAttributeData.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexAttributeData.size() * sizeof(float), m_vertexAttributeData.data(), GL_STATIC_DRAW);
 
-	InitializeIndices(indices);
-	InitializeVertexAttributePointer(vertexAttributePointerData);
+	InitializeIndices(m_indices);
+	InitializeVertexAttributePointer(m_vertexAttributePointerData);
 }
 
 ObjectDrawData::ObjectDrawData(unsigned int VBO,
-	std::vector<VertexAttributePointerData*>& vertexAttributePointerData,
-	std::vector<unsigned int> indices)
+	std::vector<VertexAttributePointerData*>* vertexAttributePointerData,
+	std::vector<unsigned int>* indices)
 {
 	glGenVertexArrays(1, &m_VAO);
 	glBindVertexArray(m_VAO);
 	m_VBO = VBO;
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
-	InitializeIndices(indices);
-	InitializeVertexAttributePointer(vertexAttributePointerData);
+	for (int i = 0; i < vertexAttributePointerData->size(); i++)
+	{
+		m_vertexAttributePointerData.push_back(*(*vertexAttributePointerData)[i]);
+	}
+
+	m_indices = *indices;
+
+	InitializeIndices(m_indices);
+	InitializeVertexAttributePointer(m_vertexAttributePointerData);
 }
 
 unsigned int ObjectDrawData::GetVAO() const
@@ -55,17 +71,17 @@ void ObjectDrawData::InitializeIndices(std::vector<unsigned int>& indices)
 	}
 }
 
-void ObjectDrawData::InitializeVertexAttributePointer(std::vector<VertexAttributePointerData*>& vertexAttributePointerData)
+void ObjectDrawData::InitializeVertexAttributePointer(std::vector<VertexAttributePointerData>& vertexAttributePointerData)
 {
 	for (unsigned int i = 0; i < vertexAttributePointerData.size(); i++)
 	{
-		glEnableVertexAttribArray(vertexAttributePointerData[i]->m_index);
-		glVertexAttribPointer(vertexAttributePointerData[i]->m_index,
-			vertexAttributePointerData[i]->m_size,
-			vertexAttributePointerData[i]->m_type,
-			vertexAttributePointerData[i]->m_normalized,
-			vertexAttributePointerData[i]->m_stride,
-			(void*)vertexAttributePointerData[i]->m_startingOffset);
+		glEnableVertexAttribArray(vertexAttributePointerData[i].m_index);
+		glVertexAttribPointer(vertexAttributePointerData[i].m_index,
+			vertexAttributePointerData[i].m_size,
+			vertexAttributePointerData[i].m_type,
+			vertexAttributePointerData[i].m_normalized,
+			vertexAttributePointerData[i].m_stride,
+			(void*)vertexAttributePointerData[i].m_startingOffset);
 	}
 }
 

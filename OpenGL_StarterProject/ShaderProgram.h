@@ -2,6 +2,9 @@
 class Shader;
 #include <string>
 #include <glm/glm.hpp>
+#include <unordered_map>
+#include "glad/glad.h"
+
 class ShaderProgram
 {
 public:
@@ -17,5 +20,8 @@ public:
 
 private:
 	unsigned int m_shaderProgramID = 0;
+	std::unordered_map<std::string, GLint> m_uniformMap;
+
+	GLint GetUniformLocation(const std::string& uniformName);
 };
 

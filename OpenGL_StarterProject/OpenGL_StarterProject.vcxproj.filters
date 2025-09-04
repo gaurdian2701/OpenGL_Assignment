@@ -27,9 +27,6 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +34,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,16 +52,15 @@
     <None Include="shaders\diffuseIllumination.frag">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shaders\specularIllumination.frag" />
+    <None Include="shaders\phongLighting.frag" />
+    <None Include="shaders\plainTexture.frag" />
+    <None Include="shaders\grass.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -76,6 +78,12 @@
     <ClInclude Include="ShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\container.jpg">
@@ -88,6 +96,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="textures\container.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\container_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

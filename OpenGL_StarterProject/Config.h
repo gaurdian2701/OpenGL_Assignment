@@ -13,7 +13,7 @@ const glm::vec3 CAMERA_STARTING_POSITION(0.0, 0.0f, 3.0f);
 
 //LIGHT CONFIGS
 const glm::vec3 LIGHT_SOURCE_POSITION(0.0f, 0.0, -10.0f);
-const glm::vec3 LIGHT_SOURCE_COLOR(1.0f, 1.0f, 1.0f);
+const glm::vec3 LIGHT_SOURCE_COLOR(0.5f, 1.0f, 1.0f);
 
 //MATERIAL CONFIGS
 const glm::vec3 AMBIENT_MATERIAL_COLOR(1.0f, 0.5f, 0.31f);
@@ -24,12 +24,16 @@ const float SPECULAR_MATERIAL_SHININESS = 8.0f;
 //MODEL CONFIGS
 const std::string MODEL_PATH = std::filesystem::path{"3DModels/grass/grass.obj"}.string();
 
-//SHADER FILE PATHS
+//VERTEX SHADER FILE PATHS
 const std::string SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/simpleObject.vert";
+const std::string INSTANCED_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/instancedObject.vert";
+
+//FRAGMENT SHADER FILE PATHS
+const std::string PLAIN_TEXTURE_FRAGMENT_SHADER_FILEPATH = "shaders/plainTexture.frag";
 const std::string LIGHT_SOURCE_FRAGMENT_SHADER_FILEPATH = "shaders/lightSource.frag";
 const std::string PHONG_LIGHTING_FRAGMENT_SHADER_FILEPATH = "shaders/phongLighting.frag";
-const std::string PLAIN_TEXTURE_FRAGMENT_SHADER_FILEPATH = "shaders/plainTexture.frag";
 const std::string GRASS_FRAGMENT_SHADER_FILEPATH = "shaders/grass.frag";
+
 
 //TEXTURE FILE PATHS
 const std::string CONTAINER_TEXTURE_FILEPATH = "textures/container.png";

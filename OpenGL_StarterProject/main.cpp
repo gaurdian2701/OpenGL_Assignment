@@ -8,9 +8,6 @@
 #include "Config.h"
 #include <vector>
 #include "Model.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -20,15 +17,14 @@ void CreateShaderProgram(const std::string& vertexShaderFilePath,
 	Shader** vertexShader,
 	Shader** fragmentShader,
 	ShaderProgram** shaderProgram);
-void StartImGuiFrame();
-void EndImGuiFrame();
-void ShutdownImgui();
 void CheckForCursorVisibility(GLFWwindow* window);
+void SetupModel(Model& model);
 
 Camera* camera = nullptr;
 FileHandler fileHandler = FileHandler();
 float deltaTime = 0.0f;
-bool cursorHidden = true;
+bool cursorHidden = false;
+std::vector<glm::vec3> objectOffsets;
 
 int main()
 {
@@ -52,7 +48,6 @@ int main()
 		return -1;
 	}
 
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, Framebuffer_Size_Callback);
@@ -65,13 +60,6 @@ int main()
 		return -1;
 	}
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& imguiIO = ImGui::GetIO();
-	imguiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init();
-
 	Shader* simpleObjectVertexShader = nullptr;
 	Shader* lightSourceFragmentShader = nullptr;
 	ShaderProgram* lightSourceShaderProgram = nullptr;
@@ -82,16 +70,18 @@ int main()
 		&lightSourceFragmentShader,
 		&lightSourceShaderProgram);
 
+	Shader* instancedObjectVertexShader = nullptr;
 	Shader* illuminatedObjectFragmentShader = nullptr;
 	ShaderProgram* illuminatedObjectShaderProgram = nullptr;
 
-	CreateShaderProgram(SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH,
+	CreateShaderProgram(INSTANCED_OBJECT_VERTEX_SHADER_FILEPATH,
 		GRASS_FRAGMENT_SHADER_FILEPATH,
-		&simpleObjectVertexShader,
+		&instancedObjectVertexShader,
 		&illuminatedObjectFragmentShader,
 		&illuminatedObjectShaderProgram);
 
 	Model grassModel(MODEL_PATH.c_str());
+	SetupModel(grassModel);
 
 	illuminatedObjectShaderProgram->Use();
 	illuminatedObjectShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
@@ -111,7 +101,6 @@ int main()
 		lastFrame = currentFrame;
 
 		glfwPollEvents();
-		StartImGuiFrame();
 		ProcessInput(window);
 		CheckForCursorVisibility(window);
 
@@ -137,22 +126,17 @@ int main()
 		lightSourceShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 		lightSourceShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
 		lightSourceShaderProgram->SetVec3Float("lightColor", LIGHT_SOURCE_COLOR);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 36, NUMBER_OF_GRASS_OBJECTS);
+		glDrawElements(GL_TRIANGLES, 0, 36, 0);
 
 		illuminatedObjectShaderProgram->Use();
 		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 		illuminatedObjectShaderProgram->SetVec3Float("viewPosition", camera->GetCameraPosition());
 
-		for (unsigned int i = 0; i < NUMBER_OF_GRASS_OBJECTS; i++)
-		{
-			modelTransformationMatrix = glm::mat4(1.0f);
-			modelTransformationMatrix = glm::translate(modelTransformationMatrix, glm::vec3(0.0f, 0.0f, -1.0f * i));
-			illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
-			grassModel.Draw(illuminatedObjectShaderProgram);
-		}
+		modelTransformationMatrix = glm::mat4(1.0f);
+		illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
+		grassModel.Draw(illuminatedObjectShaderProgram, DrawMode::INSTANCED);
 
-		EndImGuiFrame();
 		glfwSwapBuffers(window);
 	}
 
@@ -162,7 +146,6 @@ int main()
 	delete illuminatedObjectFragmentShader;
 	delete illuminatedObjectShaderProgram;
 	
-	ShutdownImgui();
 	glfwTerminate();
 	return 0;
 }
@@ -199,29 +182,6 @@ void CreateShaderProgram(const std::string& vertexShaderFilePath,
 	*shaderProgram = new ShaderProgram(*vertexShader, *fragmentShader);
 }
 
-void StartImGuiFrame()
-{
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-	ImGui::ShowDemoWindow();
-}
-
-void EndImGuiFrame()
-{
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void ShutdownImgui()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-}
-
-
-
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -254,5 +214,20 @@ void ProcessInput(GLFWwindow* window)
 void CheckForCursorVisibility(GLFWwindow* window)
 {
 	glfwSetInputMode(window, GLFW_CURSOR, cursorHidden == false ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
+void SetupModel(Model& model)
+{
+	for (int i = 1; i <= NUMBER_OF_GRASS_OBJECTS; i++)
+	{
+		for (int j = 1; j <= NUMBER_OF_GRASS_OBJECTS; j++)
+		{
+			objectOffsets.push_back(glm::vec3(1.0f * j, 0.0f, -1.0f * i));
+		}
+	}
+
+	model.SetupOffsets(&objectOffsets);
+	model.SetupInstanceCount(NUMBER_OF_GRASS_OBJECTS * NUMBER_OF_GRASS_OBJECTS);
+	model.SetupMeshes();
 }
 

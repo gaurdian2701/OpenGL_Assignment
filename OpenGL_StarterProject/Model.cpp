@@ -11,11 +11,35 @@ Model::Model(const char* modelPath)
 	LoadModel(modelPath);
 }
 
-void Model::Draw(ShaderProgram* shaderProgram)
+void Model::Draw(ShaderProgram* shaderProgram, DrawMode drawMode)
 {
 	for(unsigned int i = 0; i < m_meshes.size(); i++)
 	{
-		m_meshes[i].Draw(shaderProgram);
+		m_meshes[i].Draw(shaderProgram, drawMode);
+	}
+}
+
+void Model::SetupMeshes()
+{
+	for (unsigned int i = 0; i < m_meshes.size(); i++)
+	{
+		m_meshes[i].SetupMesh();
+	}
+}
+
+void Model::SetupOffsets(std::vector<glm::vec3>* offsets)
+{
+	for (unsigned int i = 0; i < m_meshes.size(); i++)
+	{
+		m_meshes[i].SetupOffsets(offsets);
+	}
+}
+
+void Model::SetupInstanceCount(unsigned int instanceCount)
+{
+	for (unsigned int i = 0; i < m_meshes.size(); i++)
+	{
+		m_meshes[i].SetupInstanceCount(instanceCount);
 	}
 }
 
@@ -33,6 +57,8 @@ void Model::LoadModel(std::string modelPath)
 	m_meshDirectory = modelPath.substr(0, modelPath.find_last_of('/'));
 	ProcessNode(scene->mRootNode, scene);
 }
+
+
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene)
 {
@@ -179,3 +205,4 @@ unsigned int Model::TextureFromFile(const char* path, const std::string& directo
 
 	return textureID;
 }
+

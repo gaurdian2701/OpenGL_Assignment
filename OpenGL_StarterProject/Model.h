@@ -14,10 +14,13 @@ class Model
 {
 public:
 	Model(const char* modelPath);
-	void Draw(ShaderProgram* shaderProgram);
+	void Draw(ShaderProgram* shaderProgram, DrawMode drawMode);
+	void SetupMeshes();
+	void SetupOffsets(std::vector<glm::vec3>* offsets);
+	void SetupInstanceCount(unsigned int instancedCount);
 
 private:
-	std::vector<class Mesh> m_meshes;
+	std::vector<Mesh> m_meshes;
 	std::vector<Texture> m_loadedTextures;
 	std::string m_meshDirectory = "";
 

@@ -18,4 +18,4 @@ void main()
 	Normal = mat3(transpose(inverse(modelTransformationMatrix))) * aNormal;
 	gl_Position = projectionTransformationMatrix * viewTransformationMatrix * vec4(FragPos, 1.0);
 	TexCoord = aTexCoord;
-}
+} 

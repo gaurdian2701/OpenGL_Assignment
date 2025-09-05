@@ -149,11 +149,13 @@
     <ClCompile Include="ObjectDrawData.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <None Include="imgui\imgui.ini" />
     <None Include="imgui\imgui.natstepfilter" />
     <None Include="shaders\diffuseIllumination.frag">
       <FileType>Document</FileType>
     </None>
     <None Include="shaders\grass.frag" />
+    <None Include="shaders\instancedObject.vert" />
     <None Include="shaders\phongLighting.frag" />
   </ItemGroup>
   <ItemGroup>

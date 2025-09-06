@@ -79,6 +79,7 @@
     <None Include="imgui\imgui.natstepfilter" />
     <None Include="imgui\imgui.ini" />
     <None Include="shaders\instancedObject.vert" />
+    <None Include="imgui.ini" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandler.h">

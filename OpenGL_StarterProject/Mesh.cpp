@@ -113,7 +113,6 @@ void Mesh::Draw(ShaderProgram* shaderProgram, DrawMode drawMode)
     }
 
     glBindVertexArray(0);
-
     glActiveTexture(GL_TEXTURE0);
 }
 

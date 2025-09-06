@@ -1,6 +1,5 @@
 #include "Camera.h"
 #include <GLFW/glfw3.h>
-#include "Config.h"
 
 float m_lastX = SCREEN_WIDTH / 2.0f;
 float m_lastY = SCREEN_HEIGHT / 2.0f;

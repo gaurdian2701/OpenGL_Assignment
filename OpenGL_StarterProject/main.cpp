@@ -8,6 +8,9 @@
 #include "Config.h"
 #include <vector>
 #include "Model.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -19,6 +22,8 @@ void CreateShaderProgram(const std::string& vertexShaderFilePath,
 	ShaderProgram** shaderProgram);
 void CheckForCursorVisibility(GLFWwindow* window);
 void SetupModel(Model& model);
+void InitiateShutdown();
+void UpdateUI();
 
 Camera* camera = nullptr;
 FileHandler fileHandler = FileHandler();
@@ -59,6 +64,15 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& imguiIO = ImGui::GetIO();
+	imguiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     
+	imguiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      
+
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init();
 
 	Shader* simpleObjectVertexShader = nullptr;
 	Shader* lightSourceFragmentShader = nullptr;
@@ -137,6 +151,8 @@ int main()
 		illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
 		grassModel.Draw(illuminatedObjectShaderProgram, DrawMode::INSTANCED);
 
+		UpdateUI();
+
 		glfwSwapBuffers(window);
 	}
 
@@ -145,8 +161,8 @@ int main()
 	delete lightSourceShaderProgram;
 	delete illuminatedObjectFragmentShader;
 	delete illuminatedObjectShaderProgram;
-	
-	glfwTerminate();
+
+	InitiateShutdown();
 	return 0;
 }
 
@@ -218,16 +234,41 @@ void CheckForCursorVisibility(GLFWwindow* window)
 
 void SetupModel(Model& model)
 {
-	for (int i = 1; i <= NUMBER_OF_GRASS_OBJECTS; i++)
+	for (int i = 1; i <= NUMBER_OF_ROWS; i++)
 	{
-		for (int j = 1; j <= NUMBER_OF_GRASS_OBJECTS; j++)
+		for (int j = 1; j <= NUMBER_OF_COLUMNS; j++)
 		{
 			objectOffsets.push_back(glm::vec3(1.0f * j, 0.0f, -1.0f * i));
 		}
 	}
 
 	model.SetupOffsets(&objectOffsets);
-	model.SetupInstanceCount(NUMBER_OF_GRASS_OBJECTS * NUMBER_OF_GRASS_OBJECTS);
+	model.SetupInstanceCount(NUMBER_OF_OBJECTS);
 	model.SetupMeshes();
+}
+
+void InitiateShutdown()
+{
+	glfwTerminate();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void UpdateUI()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
+
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+		1000.0f / ImGui::GetIO().Framerate,
+		ImGui::GetIO().Framerate);
+
+	ImGui::Text("Number of Objects Rendered: %i", NUMBER_OF_OBJECTS);
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 

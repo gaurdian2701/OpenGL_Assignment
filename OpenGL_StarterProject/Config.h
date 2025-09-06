@@ -22,7 +22,7 @@ const glm::vec3 SPECULAR_MATERIAL_COLOR(0.5f, 0.5f, 0.5f);
 const float SPECULAR_MATERIAL_SHININESS = 8.0f;
 
 //MODEL CONFIGS
-const std::string MODEL_PATH = std::filesystem::path{"3DModels/grass/grass.obj"}.string();
+const std::string MODEL_PATH = std::filesystem::path{"3DModels/backpack/backpack.obj"}.string();
 
 //VERTEX SHADER FILE PATHS
 const std::string SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/simpleObject.vert";
@@ -40,4 +40,6 @@ const std::string CONTAINER_TEXTURE_FILEPATH = "textures/container.png";
 const std::string CONTAINER_SPECULAR_TEXTURE_FILEPATH = "textures/container_specular.png";
 
 //GRASS CONFIGS
-const unsigned int NUMBER_OF_GRASS_OBJECTS = 100;
+const unsigned int NUMBER_OF_ROWS = 5;
+const unsigned int NUMBER_OF_COLUMNS = 5;
+constexpr unsigned int NUMBER_OF_OBJECTS = NUMBER_OF_ROWS * NUMBER_OF_COLUMNS;

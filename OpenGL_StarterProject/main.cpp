@@ -238,7 +238,7 @@ void SetupModel(Model& model)
 	{
 		for (int j = 1; j <= NUMBER_OF_COLUMNS; j++)
 		{
-			objectOffsets.push_back(glm::vec3(1.0f * j, 0.0f, -1.0f * i));
+			objectOffsets.push_back(glm::vec3(3.0f * j, 0.0f, -3.0f * i));
 		}
 	}
 

@@ -63,23 +63,30 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoggedMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggedMesh.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\skibidi.vert" />
-    <None Include="shaders\skibidi.frag" />
-    <None Include="shaders\lightSource.frag" />
+    <None Include="shaders\simpleObject.frag" />
     <None Include="shaders\simpleObject.vert" />
     <None Include="shaders\ambientIllumination.frag" />
     <None Include="shaders\diffuseIllumination.frag">
       <Filter>Source Files</Filter>
     </None>
     <None Include="shaders\phongLighting.frag" />
-    <None Include="shaders\plainTexture.frag" />
-    <None Include="shaders\grass.frag" />
+    <None Include="shaders\grassRender.frag" />
     <None Include="imgui\imgui.natstepfilter" />
     <None Include="imgui\imgui.ini" />
     <None Include="shaders\instancedObject.vert" />
     <None Include="imgui.ini" />
+    <None Include="assimp-vc143-mtd.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileHandler.h">
@@ -134,6 +141,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Loggable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

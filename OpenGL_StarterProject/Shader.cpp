@@ -43,9 +43,9 @@ void Shader::TryShaderCompilation()
 		glGetShaderiv(m_shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
 		char errorMessage[512];
 		glGetShaderInfoLog(m_shaderID, infoLogLength, &infoLogLength, &errorMessage[0]);
-		std::cout << "ERROR: Shader compilation failed:\n" << errorMessage << "\n"
+		std::cout << "ERROR: Shader compilation failed:\n" << errorMessage
 			<< "Shader type: " << (shaderType == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT") << "\n"
-			<< "Source: " << m_shaderSource;
+			<< "Source: " << m_shaderSource << "\n\n";
 	}
 	assert(shaderDidCompile);
 }

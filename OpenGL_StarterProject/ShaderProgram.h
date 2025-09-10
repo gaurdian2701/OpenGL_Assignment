@@ -16,6 +16,7 @@ public:
 	void SetInt(const std::string& name, int value);
 	void SetFloat(const std::string& name, float value);
 	void SetMat4(const std::string& name, const float* value);
+	void SetVec2Float(const std::string& name, glm::vec2 floatVec);
 	void SetVec3Float(const std::string& name, glm::vec3 floatVec);
 
 private:

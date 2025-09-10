@@ -45,6 +45,11 @@ void ShaderProgram::SetMat4(const std::string& name, const float* value)
 	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, value);
 }
 
+void ShaderProgram::SetVec2Float(const std::string& name, glm::vec2 floatVec)
+{
+	glUniform2f(GetUniformLocation(name), floatVec.x, floatVec.y);
+}
+
 void ShaderProgram::SetVec3Float(const std::string& name, glm::vec3 floatVec)
 {
 	glUniform3f(GetUniformLocation(name), floatVec.x, floatVec.y, floatVec.z);

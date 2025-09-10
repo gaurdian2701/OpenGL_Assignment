@@ -22,6 +22,7 @@ void CheckForCursorVisibility(GLFWwindow* window);
 void SetupModel(Model& model);
 void InitiateShutdown();
 void UpdateUI();
+void ReceiveInput();
 
 GLFWwindow* window = nullptr;
 Camera* camera = nullptr;
@@ -30,6 +31,9 @@ float deltaTime = 0.0f;
 bool cursorHidden = false;
 
 std::vector<glm::vec3> objectOffsets;
+std::chrono::duration<float> elapsedTime;
+
+glm::vec2 windVector = glm::vec2(0.0f);
 
 void InitializeOpenGLContext()
 {
@@ -37,6 +41,7 @@ void InitializeOpenGLContext()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwSwapInterval(0);
 
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Starter Project", NULL, NULL);
 
@@ -117,12 +122,17 @@ int main()
 	illuminatedObjectShaderProgram->SetFloat("material.shininess", SPECULAR_MATERIAL_SHININESS);
 
 	float lastFrame = 0.0f;
+	auto timeAtStart = std::chrono::high_resolution_clock::now();
+	auto timeAtCurrentFrame = 0;
 
 	while (!glfwWindowShouldClose(window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		
+		auto timeAtCurrentFrame = std::chrono::high_resolution_clock::now();
+		elapsedTime = timeAtCurrentFrame - timeAtStart;
 
 		glfwPollEvents();
 		ProcessInput(window);
@@ -144,9 +154,12 @@ int main()
 		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
 		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
 		illuminatedObjectShaderProgram->SetVec3Float("viewPosition", camera->GetCameraPosition());
+		illuminatedObjectShaderProgram->SetFloat("timeStep", elapsedTime.count());
+		illuminatedObjectShaderProgram->SetVec2Float("windVector", windVector);
 
 		modelTransformationMatrix = glm::mat4(1.0f);
-		illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", glm::value_ptr(modelTransformationMatrix));
+		illuminatedObjectShaderProgram->SetMat4("modelTransformationMatrix", 
+			glm::value_ptr(modelTransformationMatrix));
 
 		grassModel.Draw(illuminatedObjectShaderProgram, DrawMode::INSTANCED);
 		lightSource.Draw(lightSourceShaderProgram, viewTransformationMatrix);
@@ -170,7 +183,10 @@ void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height)
 
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos)
 {
-	camera->MouseCallback(xpos, ypos);
+	if (!cursorHidden)
+	{
+		camera->MouseCallback(xpos, ypos);
+	}
 }
 
 void ProcessInput(GLFWwindow* window)
@@ -180,7 +196,7 @@ void ProcessInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_TAB) == (GLFW_PRESS | GLFW_RELEASE))
 	{
 		cursorHidden = !cursorHidden;
 	}
@@ -232,7 +248,17 @@ void UpdateUI()
 
 	ImGui::Text("Number of Objects Rendered: %i", NUMBER_OF_OBJECTS);
 
+	ImGui::Text("Time Step: %.4f", elapsedTime);
+
+
+	ReceiveInput();
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ReceiveInput()
+{
+	ImGui::SliderFloat2("Wind Vector", &windVector.x, -1.0f, 1.0f);
 }
 

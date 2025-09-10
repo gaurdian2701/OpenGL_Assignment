@@ -41,8 +41,8 @@ const std::string CONTAINER_TEXTURE_FILEPATH = "textures/container.png";
 const std::string CONTAINER_SPECULAR_TEXTURE_FILEPATH = "textures/container_specular.png";
 
 //GRASS CONFIGS
-const unsigned int NUMBER_OF_ROWS = 100;
-const unsigned int NUMBER_OF_COLUMNS = 100;
+const unsigned int NUMBER_OF_ROWS = 1000;
+const unsigned int NUMBER_OF_COLUMNS = 1000;
 const float GRASS_X_OFFSET = 1.0f;
 const float GRASS_Z_OFFSET = 1.0f;
 constexpr unsigned int NUMBER_OF_OBJECTS = NUMBER_OF_ROWS * NUMBER_OF_COLUMNS;

@@ -44,5 +44,5 @@ const std::string CONTAINER_SPECULAR_TEXTURE_FILEPATH = "textures/container_spec
 const unsigned int NUMBER_OF_ROWS = 100;
 const unsigned int NUMBER_OF_COLUMNS = 100;
 const float MIN_OBJECT_OFFSET = 0.5f;
-const float MAX_OBJECT_OFFSET = 1.0f;
+const float MAX_OBJECT_OFFSET = 0.8f;
 constexpr unsigned int NUMBER_OF_OBJECTS = NUMBER_OF_ROWS * NUMBER_OF_COLUMNS;

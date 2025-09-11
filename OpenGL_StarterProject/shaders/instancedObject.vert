@@ -12,7 +12,9 @@ uniform mat4 viewTransformationMatrix;
 uniform mat4 projectionTransformationMatrix;
 
 float minSwayingHeight = 0.1f;
-float sineValue = sin(timeStep);
+float waggingHeight = 0.5f;
+float swayingAmplitude = 0.25f;
+float baseSwayFrequency = 3.0f;
 
 out VS_OUT
 {
@@ -26,19 +28,49 @@ void SwayVertices()
 {
 	float windX = windVector.x;
 	float windY = windVector.y;
+	float swayMultiplier = 1.0f;
+	float currentSwayingAmplitude = swayingAmplitude;
 
-	vec3 baseDisplacementVector = vs_out.FragPos;
+
+	vec3 baseDisplacementVector = vec3(0.0f);
 	vec3 swayInWindDirection = vec3(0.0f);
+	vec3 swayingVector = vs_out.FragPos;
 
 	if(aPos.y > minSwayingHeight)
 	{
 		baseDisplacementVector = vec3(
 		vs_out.FragPos.x + windX * aPos.y,
 		vs_out.FragPos.y,
-		vs_out.FragPos.z + windY * aPos.y);   
+		vs_out.FragPos.z + windY * aPos.y);  
+
+		float swayX = 0.0f;
+		float swayZ = 0.0f;
+
+		if(aPos.y > waggingHeight)
+		{
+			currentSwayingAmplitude *= 1.3f;
+		}
+		
+		swayX = sin(timeStep * baseSwayFrequency * windX + gl_InstanceID)
+				* windX * currentSwayingAmplitude * aPos.y;
+		swayZ = sin(timeStep * baseSwayFrequency * windY + gl_InstanceID)
+				* windY * currentSwayingAmplitude * aPos.y;
+
+		if(aPos.y > waggingHeight)
+		{
+			if(swayX > 0.0f)
+				swayX *= 1.4f * aPos.y;
+
+			if(swayZ > 0.0f)
+				swayZ *= 1.4f * aPos.y;
+		}
+
+		swayInWindDirection = vec3(swayX, 0.0f, swayZ);
+		 
+		swayingVector = baseDisplacementVector + swayInWindDirection;
 	}
 
-	vs_out.FragPos = baseDisplacementVector;
+	vs_out.FragPos = swayingVector;
 }
 
 void main()

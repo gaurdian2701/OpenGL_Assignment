@@ -13,6 +13,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "StaticObject.h"
 #include "ShaderHandler.h"
+#include <random>
 
 void Framebuffer_Size_Callback(GLFWwindow* window, int width, int height);
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);	
@@ -32,6 +33,9 @@ bool cursorHidden = false;
 
 std::vector<glm::vec3> objectOffsets;
 std::chrono::duration<float> elapsedTime;
+std::random_device randomDevice;
+std::mt19937 randomGenerator = std::mt19937(randomDevice());
+
 
 glm::vec2 windVector = glm::vec2(0.0f);
 
@@ -214,11 +218,16 @@ void CheckForCursorVisibility(GLFWwindow* window)
 
 void SetupModel(Model& model)
 {
+	std::uniform_real_distribution<float> offsetDistribution(MIN_OBJECT_OFFSET, MAX_OBJECT_OFFSET);
+
 	for (int i = 1; i <= NUMBER_OF_ROWS; i++)
 	{
 		for (int j = 1; j <= NUMBER_OF_COLUMNS; j++)
 		{
-			objectOffsets.push_back(glm::vec3(GRASS_X_OFFSET * j, 0.0f, GRASS_Z_OFFSET * i));
+			objectOffsets.push_back(glm::vec3(
+				offsetDistribution(randomGenerator) * j,
+				0.0f,
+				offsetDistribution(randomGenerator) * i));
 		}
 	}
 
@@ -248,7 +257,8 @@ void UpdateUI()
 
 	ImGui::Text("Number of Objects Rendered: %i", NUMBER_OF_OBJECTS);
 
-	ImGui::Text("Time Step: %.4f", elapsedTime);
+	ImGui::Text("Time Step: %.4f", elapsedTime.count());
+	ImGui::Text("Sine Value: %.4f", sin(elapsedTime.count()));
 
 
 	ReceiveInput();

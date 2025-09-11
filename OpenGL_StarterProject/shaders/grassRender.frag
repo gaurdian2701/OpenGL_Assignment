@@ -43,7 +43,7 @@ void main()
 	vec3 specularFactor = lightColor * pow(max(dot(reflectionDirection, viewDirection), 0.0f),
 							material.shininess) * specularTexture.rgb;
 
-	if(diffuseTexture.a < 0.1 || distance(fs_in.FragPos, viewPosition) >= cullingDistance)
+	if(diffuseTexture.a < 0.5 || distance(fs_in.FragPos, viewPosition) >= cullingDistance)
 	{
 		discard;
 	}

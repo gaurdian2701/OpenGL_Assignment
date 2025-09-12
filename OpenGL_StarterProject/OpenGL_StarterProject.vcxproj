@@ -164,6 +164,7 @@
     <None Include="shaders\grassRender.frag" />
     <None Include="shaders\instancedObject.vert" />
     <None Include="shaders\phongLighting.frag" />
+    <None Include="shaders\swayingObject.vert" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ambientIllumination.frag" />

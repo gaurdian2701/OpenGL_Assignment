@@ -28,7 +28,7 @@ const std::string MODEL_PATH = std::filesystem::path{"3DModels/grass/grass.obj"}
 
 //VERTEX SHADER FILE PATHS
 const std::string SIMPLE_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/simpleObject.vert";
-const std::string INSTANCED_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/instancedObject.vert";
+const std::string SWAYING_OBJECT_VERTEX_SHADER_FILEPATH = "shaders/swayingObject.vert";
 
 //FRAGMENT SHADER FILE PATHS
 const std::string SIMPLE_OBJECT_FRAGMENT_SHADER_FILEPATH = "shaders/simpleObject.frag";
@@ -41,8 +41,10 @@ const std::string CONTAINER_TEXTURE_FILEPATH = "textures/container.png";
 const std::string CONTAINER_SPECULAR_TEXTURE_FILEPATH = "textures/container_specular.png";
 
 //GRASS CONFIGS
-constexpr unsigned int NUMBER_OF_ROWS = 100;
-constexpr unsigned int NUMBER_OF_COLUMNS = 100;
-constexpr float MIN_OBJECT_OFFSET = 0.5f;
-constexpr float MAX_OBJECT_OFFSET = 0.8f;
+constexpr unsigned int NUMBER_OF_ROWS = 1000;
+constexpr unsigned int NUMBER_OF_COLUMNS = 1000;
+constexpr float MIN_LATERAL_RANDOM_OFFSET = 0.5f;
+constexpr float MAX_LATERAL_RANDOM_OFFSET = 0.8f;
+constexpr float MIN_VERTICAL_RANDOM_OFFSET = 0.0f;
+constexpr float MAX_VERTICAL_RANDOM_OFFSET = 0.5f;
 constexpr unsigned int NUMBER_OF_OBJECTS = NUMBER_OF_ROWS * NUMBER_OF_COLUMNS;

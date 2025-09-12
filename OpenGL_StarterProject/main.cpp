@@ -33,9 +33,12 @@ bool cursorHidden = false;
 
 std::vector<glm::vec3> objectOffsets;
 std::chrono::duration<float> elapsedTime;
+
 std::random_device randomDevice;
 std::mt19937 randomGenerator = std::mt19937(randomDevice());
 
+std::uniform_real_distribution<float> offsetDistribution(MIN_LATERAL_RANDOM_OFFSET,
+	MAX_LATERAL_RANDOM_OFFSET);
 
 glm::vec2 windVector = glm::vec2(0.0f);
 
@@ -101,7 +104,7 @@ int main()
 
 	ShaderProgram* illuminatedObjectShaderProgram = 
 		new ShaderProgram(
-			shaderHandler->GetShader(INSTANCED_OBJECT_VERTEX_SHADER_FILEPATH),
+			shaderHandler->GetShader(SWAYING_OBJECT_VERTEX_SHADER_FILEPATH),
 			shaderHandler->GetShader(GRASS_RENDER_FRAGMENT_SHADER_FILEPATH));
 
 	glm::mat4 modelTransformationMatrix = glm::mat4(1.0f);
@@ -155,8 +158,10 @@ int main()
 		modelTransformationMatrix = glm::translate(modelTransformationMatrix, LIGHT_SOURCE_POSITION);
 
 		illuminatedObjectShaderProgram->Use();
-		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix", glm::value_ptr(viewTransformationMatrix));
-		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix", glm::value_ptr(projectionTransformationMatrix));
+		illuminatedObjectShaderProgram->SetMat4("viewTransformationMatrix",
+			glm::value_ptr(viewTransformationMatrix));
+		illuminatedObjectShaderProgram->SetMat4("projectionTransformationMatrix",
+			glm::value_ptr(projectionTransformationMatrix));
 		illuminatedObjectShaderProgram->SetVec3Float("viewPosition", camera->GetCameraPosition());
 		illuminatedObjectShaderProgram->SetFloat("timeStep", elapsedTime.count());
 		illuminatedObjectShaderProgram->SetVec2Float("windVector", windVector);
@@ -218,16 +223,17 @@ void CheckForCursorVisibility(GLFWwindow* window)
 
 void SetupModel(Model& model)
 {
-	std::uniform_real_distribution<float> offsetDistribution(MIN_OBJECT_OFFSET, MAX_OBJECT_OFFSET);
+	std::uniform_real_distribution<float> 
+		verticalOffsetDistribution(MIN_VERTICAL_RANDOM_OFFSET, MAX_VERTICAL_RANDOM_OFFSET);
 
 	for (int i = 1; i <= NUMBER_OF_ROWS; i++)
 	{
 		for (int j = 1; j <= NUMBER_OF_COLUMNS; j++)
 		{
 			objectOffsets.push_back(glm::vec3(
-				offsetDistribution(randomGenerator) * j,
-				0.0f,
-				offsetDistribution(randomGenerator) * i));
+				offsetDistribution(randomGenerator) * i,
+				verticalOffsetDistribution(randomGenerator),
+				offsetDistribution(randomGenerator) * j));
 		}
 	}
 
@@ -235,6 +241,7 @@ void SetupModel(Model& model)
 	model.SetupInstanceCount(NUMBER_OF_OBJECTS);
 	model.SetupMeshes();
 }
+
 
 void InitiateShutdown()
 {
@@ -271,4 +278,5 @@ void ReceiveInput()
 {
 	ImGui::SliderFloat2("Wind Vector", &windVector.x, -1.0f, 1.0f);
 }
+
 
